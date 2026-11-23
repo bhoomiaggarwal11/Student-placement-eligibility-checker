@@ -1,0 +1,8 @@
+STU101,Bhoomi Aggarwaal,bhoomi3592.beai25@chitkara.edu.in,9876543210,IT,7,8.2,0
+STU102,Kamna Mehta,kamna.mehta@example.com,9876543211,IT,7,9.1,0
+STU103,Rahul Sen,rahul.sen@example.com,9876543212,CSE,7,8.7,0
+STU104,Priya Mishra,priya.mishra@example.com,9876543213,CSE,7,7.8,0
+STU105,Ananya Kapoor,ananya.k@example.com,9876543214,ECE,7,7.4,1
+STU106,Vikram Rao,vikram.rao@example.com,9876543215,MECH,7,6.8,1
+STU107,Aman Verma,aman.v@example.com,9876543216,IT,7,6.2,3
+STU108,Rohan Gupta,rohan.g@example.com,9876543217,CSE,7,8.9,0

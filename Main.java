@@ -6,6 +6,7 @@ public class Main {
     static Scanner scanner = new Scanner(System.in);
     static StudentManager studentManager = new StudentManager();
     static CompanyManager companyManager = new CompanyManager();
+    static InterviewScheduler scheduler = new InterviewScheduler();
 
     static boolean isAdminLoggedIn = false;
     static final String ADMIN_USERNAME = "admin";
@@ -43,11 +44,17 @@ public class Main {
                     handleExportReports();
                     break;
                 case 8:
+                    handleInterviewScheduler();
+                    break;
+                case 9:
+                    handleNotificationService();
+                    break;
+                case 10:
                     System.out.println("Data saved. Goodbye!");
                     running = false;
                     break;
                 default:
-                    System.out.println("Invalid choice. Please enter a number between 1 and 8.");
+                    System.out.println("Invalid choice. Please enter a number between 1 and 10.");
             }
 
             if (running) {
@@ -70,7 +77,9 @@ public class Main {
         System.out.println("5. View Eligible Students for a Company");
         System.out.println("6. Rank Students by CGPA");
         System.out.println("7. Export Placement Reports");
-        System.out.println("8. Exit");
+        System.out.println("8. Automated Interview & Room Scheduler");
+        System.out.println("9. Placement Email & Notification Dispatcher");
+        System.out.println("10. Exit");
         System.out.println("==========================================");
     }
 
@@ -387,6 +396,151 @@ public class Main {
             default:
                 System.out.println("Invalid option.");
         }
+    }
+
+    static void handleInterviewScheduler() {
+        System.out.println("\n--- Automated Interview & Room Scheduler ---");
+        System.out.println("1. Auto-Schedule Interviews for Eligible Candidates");
+        System.out.println("2. View Current Interview Schedule & Room Allocations");
+        System.out.println("3. Clear / Reset All Interview Schedules");
+        System.out.println("4. Back");
+
+        int choice = getIntInput("Select option: ");
+        switch (choice) {
+            case 1:
+                if (!checkAdmin()) return;
+                scheduleInterviews();
+                break;
+            case 2:
+                scheduler.displayAllSchedules();
+                break;
+            case 3:
+                if (!checkAdmin()) return;
+                scheduler.clearAllSchedules();
+                break;
+            case 4:
+                return;
+            default:
+                System.out.println("Invalid option.");
+        }
+    }
+
+    static void scheduleInterviews() {
+        if (companyManager.getAllCompanies().isEmpty()) {
+            System.out.println("No companies registered.");
+            return;
+        }
+
+        companyManager.displayAllCompanies();
+        String companyId = getStringInput("Enter Company ID to schedule interviews for: ");
+        Company company = companyManager.findCompanyById(companyId);
+        if (company == null) {
+            System.out.println("Company not found.");
+            return;
+        }
+
+        ArrayList<Student> eligible = new ArrayList<>();
+        for (Student s : studentManager.getAllStudents()) {
+            if (EligibilityChecker.isEligible(s, company)) {
+                eligible.add(s);
+            }
+        }
+
+        if (eligible.isEmpty()) {
+            System.out.println("No eligible candidates found for " + company.getCompanyName() + " to schedule.");
+            return;
+        }
+
+        System.out.println("\nSelect Interview Round:");
+        System.out.println("1. Tech Round 1");
+        System.out.println("2. System Design");
+        System.out.println("3. Behavioral / HR");
+        System.out.println("4. Quant Round");
+        System.out.println("5. Custom Round");
+        int roundChoice = getIntInput("Enter choice (1-5): ");
+        String roundName;
+        switch (roundChoice) {
+            case 1: roundName = "Tech Round 1"; break;
+            case 2: roundName = "System Design"; break;
+            case 3: roundName = "Behavioral / HR"; break;
+            case 4: roundName = "Quant Round"; break;
+            default: roundName = getStringInput("Enter custom round name: "); break;
+        }
+
+        String date = getStringInput("Enter Drive Date (e.g. 25-Nov-2026): ");
+        int scheduled = scheduler.autoSchedule(company, eligible, roundName, date);
+        System.out.println("Successfully scheduled " + scheduled + " clash-free interview slots across available rooms!");
+        scheduler.displayAllSchedules();
+    }
+
+    static void handleNotificationService() {
+        System.out.println("\n--- Placement Email & Notification Dispatcher ---");
+        System.out.println("1. Broadcast Interview Call Letters (For Scheduled Candidates)");
+        System.out.println("2. Send Individual Interview Call Letter");
+        System.out.println("3. Send Eligibility Notification (Eligible / Not Eligible Alert)");
+        System.out.println("4. Back");
+
+        int choice = getIntInput("Select option: ");
+        switch (choice) {
+            case 1:
+                if (!checkAdmin()) return;
+                if (scheduler.getScheduleList().isEmpty()) {
+                    System.out.println("No interview slots scheduled yet. Please schedule interviews first (Option 8).");
+                    return;
+                }
+                int count = NotificationService.broadcastSchedules(scheduler.getScheduleList(), studentManager);
+                System.out.println("\n>> Successfully broadcasted " + count + " call letters! Check email_notifications.txt for dispatched logs.");
+                break;
+            case 2:
+                if (!checkAdmin()) return;
+                sendManualCallLetter();
+                break;
+            case 3:
+                if (!checkAdmin()) return;
+                sendManualEligibilityAlert();
+                break;
+            case 4:
+                return;
+            default:
+                System.out.println("Invalid option.");
+        }
+    }
+
+    static void sendManualCallLetter() {
+        String studentId = getStringInput("Enter Student ID: ");
+        Student s = studentManager.findStudentById(studentId);
+        if (s == null) {
+            System.out.println("Student not found.");
+            return;
+        }
+
+        String companyName = getStringInput("Company Name: ");
+        String roundName = getStringInput("Round Name (e.g. Tech Round 1): ");
+        String room = getStringInput("Room (e.g. Room A - Suite 1): ");
+        String timeSlot = getStringInput("Time Slot (e.g. 10:30 AM - 12:00 PM): ");
+        String date = getStringInput("Date (e.g. 25-Nov-2026): ");
+
+        NotificationService.sendInterviewCallLetter(s, companyName, roundName, room, timeSlot, date);
+    }
+
+    static void sendManualEligibilityAlert() {
+        String studentId = getStringInput("Enter Student ID: ");
+        Student s = studentManager.findStudentById(studentId);
+        if (s == null) {
+            System.out.println("Student not found.");
+            return;
+        }
+
+        String companyId = getStringInput("Enter Company ID: ");
+        Company c = companyManager.findCompanyById(companyId);
+        if (c == null) {
+            System.out.println("Company not found.");
+            return;
+        }
+
+        boolean eligible = EligibilityChecker.isEligible(s, c);
+        String reason = eligible ? "Meets cutoff" : "CGPA / Backlog / Branch requirements not met";
+        NotificationService.sendEligibilityAlert(s, c, eligible, reason);
     }
 
     static boolean checkAdmin() {

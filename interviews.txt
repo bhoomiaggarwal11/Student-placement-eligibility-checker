@@ -1,0 +1,4 @@
+SCH-1,STU101,Bhoomi Sharma,Google,Tech Round 1,Room A (Suite 1),09:00 AM - 10:30 AM,25-Nov-2026
+SCH-2,STU102,Kamna Mehta,Google,Tech Round 1,Room B (Suite 2),09:00 AM - 10:30 AM,25-Nov-2026
+SCH-3,STU103,Rahul Sen,Google,Tech Round 1,Room C (Pod A),09:00 AM - 10:30 AM,25-Nov-2026
+SCH-4,STU108,Rohan Gupta,Google,Tech Round 1,Lab 1 (Tech Lab),09:00 AM - 10:30 AM,25-Nov-2026

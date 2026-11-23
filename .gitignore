@@ -1,0 +1,41 @@
+# Credentials & Sensitive Information
+email_config.json
+**/email_config.json
+*.env
+.env*
+
+# Logs & Communication Audit Trails
+email_notifications.txt
+**/email_notifications.txt
+*.log
+
+# Java Compiled Bytecode
+*.class
+bin/
+out/
+target/
+
+# Generated Reports
+reports/
+**/reports/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# IDEs & Editors
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+.settings/
+.project
+.classpath
+
+# OS Specific
+Thumbs.db
+Desktop.ini
+.DS_Store

@@ -1,0 +1,6 @@
+CMP101,Google,8.0,0,CSE;IT
+CMP102,Amazon,7.5,1,CSE;IT;ECE
+CMP103,Microsoft,7.0,0,CSE;IT;ECE;MECH
+CMP104,Goldman Sachs,8.5,0,CSE;IT
+CMP105,TechCorp,6.5,2,
+CMP106,DataSys,7.0,1,CSE;IT
