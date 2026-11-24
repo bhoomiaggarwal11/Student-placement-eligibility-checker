@@ -15,6 +15,7 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("Loaded " + studentManager.getStudentCount() + " students and "
                 + companyManager.getCompanyCount() + " companies.");
+        ReportGenerator.syncLiveDashboard(studentManager.getAllStudents(), companyManager.getAllCompanies());
 
         boolean running = true;
         while (running) {
@@ -363,8 +364,9 @@ public class Main {
         System.out.println("2. Export Student Report as TXT");
         System.out.println("3. Export Eligible Students Report as CSV");
         System.out.println("4. Export Eligible Students Report as TXT");
-        System.out.println("5. Export All Reports (CSV + TXT)");
-        System.out.println("6. Back");
+        System.out.println("5. Export All Audit Reports (CSV + TXT)");
+        System.out.println("6. Sync & Update Web Dashboard (dashboard.html)");
+        System.out.println("7. Back");
 
         int choice = getIntInput("Select option: ");
 
@@ -389,9 +391,12 @@ public class Main {
                 ReportGenerator.exportStudentReport(students, "txt");
                 ReportGenerator.exportEligibleStudentsReport(companies, students, "csv");
                 ReportGenerator.exportEligibleStudentsReport(companies, students, "txt");
-                System.out.println("All reports exported successfully.");
+                System.out.println("All audit reports exported successfully.");
                 break;
             case 6:
+                ReportGenerator.syncLiveDashboard(students, companies);
+                break;
+            case 7:
                 return;
             default:
                 System.out.println("Invalid option.");

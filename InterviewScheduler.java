@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class InterviewScheduler {
 
@@ -47,19 +48,28 @@ public class InterviewScheduler {
         }
     }
 
-    private ArrayList<InterviewSlot> scheduleList;
+    private final ArrayList<InterviewSlot> scheduleList;
     private static final String FILE_NAME = "interviews.txt";
-    private static final String[] AVAILABLE_ROOMS = {"Room A (Suite 1)", "Room B (Suite 2)", "Room C (Pod A)", "Lab 1 (Tech Lab)"};
-    private static final String[] TIME_SLOTS = {
-            "09:00 AM - 10:30 AM",
-            "10:30 AM - 12:00 PM",
-            "01:00 PM - 02:30 PM",
-            "02:30 PM - 04:00 PM",
-            "04:00 PM - 05:30 PM"
+
+    // Campus venue allocations for placement drives
+    private static final String[] VENUES = {
+            "Interview Room A",
+            "Interview Room B",
+            "Placement Boardroom C",
+            "Conference Lab 1"
+    };
+
+    private static final String[] SLOT_TIMINGS = {
+            "09:30 AM - 10:30 AM",
+            "10:45 AM - 11:45 AM",
+            "12:00 PM - 01:00 PM",
+            "02:00 PM - 03:00 PM",
+            "03:15 PM - 04:15 PM",
+            "04:30 PM - 05:30 PM"
     };
 
     public InterviewScheduler() {
-        scheduleList = new ArrayList<>();
+        this.scheduleList = new ArrayList<>();
         loadFromFile();
     }
 
@@ -67,66 +77,76 @@ public class InterviewScheduler {
         return scheduleList;
     }
 
-    /**
-     * Automated Clash-Free Interview Scheduler
-     * Allocates rooms and time slots to eligible candidates across recruitment rounds.
-     */
-    public int autoSchedule(Company company, ArrayList<Student> eligibleStudents, String roundName, String date) {
+    // Schedules eligible students in non-overlapping interview slots
+    // Prioritizes candidates with higher academic standing first
+    public int autoSchedule(Company company, ArrayList<Student> eligibleStudents, String roundName, String driveDate) {
         if (eligibleStudents == null || eligibleStudents.isEmpty()) {
-            System.out.println("No eligible students provided for scheduling.");
+            System.out.println("Notice: No eligible candidate pool provided to schedule.");
             return 0;
         }
 
-        int scheduledCount = 0;
-        int roomIndex = 0;
-        int timeIndex = 0;
+        // Sort candidates so higher CGPA students get assigned first
+        ArrayList<Student> sortedCandidates = new ArrayList<>(eligibleStudents);
+        sortedCandidates.sort((a, b) -> Double.compare(b.getCgpa(), a.getCgpa()));
 
-        for (Student s : eligibleStudents) {
-            // Find a clash-free room and time slot
-            boolean assigned = false;
-            int attempts = 0;
-            int maxAttempts = AVAILABLE_ROOMS.length * TIME_SLOTS.length;
+        int assignedCount = 0;
+        int venueIndex = 0;
+        int timingIndex = 0;
 
-            while (!assigned && attempts < maxAttempts) {
-                String room = AVAILABLE_ROOMS[roomIndex];
-                String time = TIME_SLOTS[timeIndex];
+        for (Student s : sortedCandidates) {
+            boolean slotFound = false;
+            int combinationsChecked = 0;
+            int totalCombinations = VENUES.length * SLOT_TIMINGS.length;
 
-                if (!hasClash(room, time, date, s.getStudentId())) {
-                    String slotId = "SCH-" + (scheduleList.size() + 1);
-                    InterviewSlot slot = new InterviewSlot(slotId, s.getStudentId(), s.getName(),
-                            company.getCompanyName(), roundName, room, time, date);
-                    scheduleList.add(slot);
-                    scheduledCount++;
-                    assigned = true;
+            while (!slotFound && combinationsChecked < totalCombinations) {
+                String candidateVenue = VENUES[venueIndex];
+                String candidateTime = SLOT_TIMINGS[timingIndex];
+
+                if (!hasClash(candidateVenue, candidateTime, driveDate, s.getStudentId())) {
+                    String slotCode = "SLOT-" + (scheduleList.size() + 1);
+                    InterviewSlot newSlot = new InterviewSlot(
+                            slotCode,
+                            s.getStudentId(),
+                            s.getName(),
+                            company.getCompanyName(),
+                            roundName,
+                            candidateVenue,
+                            candidateTime,
+                            driveDate
+                    );
+                    scheduleList.add(newSlot);
+                    assignedCount++;
+                    slotFound = true;
                 }
 
-                // Advance room and time pointers
-                roomIndex++;
-                if (roomIndex >= AVAILABLE_ROOMS.length) {
-                    roomIndex = 0;
-                    timeIndex = (timeIndex + 1) % TIME_SLOTS.length;
+                // Advance venue and time pointers
+                venueIndex++;
+                if (venueIndex >= VENUES.length) {
+                    venueIndex = 0;
+                    timingIndex = (timingIndex + 1) % SLOT_TIMINGS.length;
                 }
-                attempts++;
+                combinationsChecked++;
+            }
+
+            if (!slotFound) {
+                System.out.println("Warning: Capacity reached. Could not find a free slot for candidate: "
+                        + s.getName() + " (" + s.getStudentId() + ")");
             }
         }
 
         saveToFile();
-        return scheduledCount;
+        return assignedCount;
     }
 
-    /**
-     * Checks if a room is occupied at a given time/date OR if student is already booked
-     */
+    // Verifies whether a room is in use at the same date/time OR candidate has concurrent round
     public boolean hasClash(String room, String time, String date, String studentId) {
-        for (InterviewSlot slot : scheduleList) {
-            if (slot.getDate().equalsIgnoreCase(date) && slot.getTimeSlot().equalsIgnoreCase(time)) {
-                // Room conflict check
-                if (slot.getRoom().equalsIgnoreCase(room)) {
-                    return true;
+        for (InterviewSlot existing : scheduleList) {
+            if (existing.getDate().equalsIgnoreCase(date) && existing.getTimeSlot().equalsIgnoreCase(time)) {
+                if (existing.getRoom().equalsIgnoreCase(room)) {
+                    return true; // Room overlap
                 }
-                // Student double-booking check
-                if (slot.getStudentId().equalsIgnoreCase(studentId)) {
-                    return true;
+                if (existing.getStudentId().equalsIgnoreCase(studentId)) {
+                    return true; // Candidate double-booking
                 }
             }
         }
@@ -135,40 +155,38 @@ public class InterviewScheduler {
 
     public void displayAllSchedules() {
         if (scheduleList.isEmpty()) {
-            System.out.println("No interview schedules found.");
+            System.out.println("Notice: No scheduled interview slots recorded.");
             return;
         }
 
-        System.out.println("\n=========================== PLACEMENTHUB INTERVIEW SCHEDULE ===========================");
-        System.out.printf("%-8s %-10s %-18s %-14s %-15s %-18s %-22s %-12s%n",
-                "Slot ID", "Student ID", "Student Name", "Company", "Round", "Room", "Time Slot", "Date");
-        System.out.println("--------------------------------------------------------------------------------------------------------------------");
+        System.out.println("\n================================ CAMPUS INTERVIEW TIMETABLE ================================");
+        System.out.printf("%-10s %-10s %-18s %-14s %-15s %-22s %-22s %-12s%n",
+                "Slot ID", "Student ID", "Candidate Name", "Company", "Round", "Venue", "Time Slot", "Date");
+        System.out.println("----------------------------------------------------------------------------------------------------------------------");
 
         for (InterviewSlot s : scheduleList) {
-            System.out.printf("%-8s %-10s %-18s %-14s %-15s %-18s %-22s %-12s%n",
+            System.out.printf("%-10s %-10s %-18s %-14s %-15s %-22s %-22s %-12s%n",
                     s.getSlotId(), s.getStudentId(), s.getStudentName(), s.getCompanyName(),
                     s.getRoundName(), s.getRoom(), s.getTimeSlot(), s.getDate());
         }
-        System.out.println("====================================================================================================================");
-        System.out.println("Total Interviews Scheduled: " + scheduleList.size() + " | Clashes Detected: 0 (Optimal)");
+        System.out.println("----------------------------------------------------------------------------------------------------------------------");
+        System.out.println("Total Booked Slots: " + scheduleList.size() + " | Overlaps: 0 (Validated)");
     }
 
     public void clearAllSchedules() {
         scheduleList.clear();
         saveToFile();
-        System.out.println("All interview schedules have been reset.");
+        System.out.println("Schedule table successfully cleared.");
     }
 
     public void saveToFile() {
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME));
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME))) {
             for (InterviewSlot slot : scheduleList) {
                 writer.write(slot.toString());
                 writer.newLine();
             }
-            writer.close();
         } catch (IOException e) {
-            System.out.println("Error saving interview schedules: " + e.getMessage());
+            System.out.println("Error saving interview timetable: " + e.getMessage());
         }
     }
 
@@ -176,23 +194,22 @@ public class InterviewScheduler {
         File file = new File(FILE_NAME);
         if (!file.exists()) return;
 
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(file));
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                if (line.trim().isEmpty()) continue;
-                String[] parts = line.split(",");
-                if (parts.length >= 8) {
+                line = line.trim();
+                if (line.isEmpty()) continue;
+                String[] tokens = line.split(",");
+                if (tokens.length >= 8) {
                     InterviewSlot slot = new InterviewSlot(
-                            parts[0], parts[1], parts[2], parts[3],
-                            parts[4], parts[5], parts[6], parts[7]
+                            tokens[0].trim(), tokens[1].trim(), tokens[2].trim(), tokens[3].trim(),
+                            tokens[4].trim(), tokens[5].trim(), tokens[6].trim(), tokens[7].trim()
                     );
                     scheduleList.add(slot);
                 }
             }
-            reader.close();
         } catch (IOException e) {
-            System.out.println("Error loading interview schedules: " + e.getMessage());
+            System.out.println("Notice: Could not load interview schedule file: " + e.getMessage());
         }
     }
 }

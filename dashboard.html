@@ -366,7 +366,7 @@
             border: 1px solid rgba(244, 63, 94, 0.25);
         }
 
-        /* Scheduler Specific Styles (matches scheduler_ui.jpg) */
+        /* Scheduler View Styles */
         .scheduler-topbar {
             display: flex;
             align-items: center;
@@ -703,7 +703,7 @@
             </div>
         </header>
 
-        <!-- TAB 1: DASHBOARD (Matches dashboard_ui.jpg) -->
+        <!-- TAB 1: DASHBOARD OVERVIEW -->
         <div id="tab-dashboard" class="page-content active">
             <h2 class="section-title">Top Analytics</h2>
             <div class="stats-grid">
@@ -851,7 +851,7 @@
             </div>
         </div>
 
-        <!-- TAB 5: SCHEDULER (Matches scheduler_ui.jpg) -->
+        <!-- TAB 5: INTERVIEW SCHEDULER TIMETABLE -->
         <div id="tab-scheduler" class="page-content">
             <div class="scheduler-topbar">
                 <div class="scheduler-metrics">
@@ -979,23 +979,23 @@
 
     <script>
         const students = [
-            { id: "STU101", name: "Bhoomi Sharma", email: "bhoomi.sharma@example.com", phone: "9876543210", branch: "IT", semester: 7, cgpa: 8.2, backlogs: 0 },
-            { id: "STU102", name: "Kamna Mehta", email: "kamna.mehta@example.com", phone: "9876543211", branch: "IT", semester: 7, cgpa: 9.1, backlogs: 0 },
-            { id: "STU103", name: "Rahul Sen", email: "rahul.sen@example.com", phone: "9876543212", branch: "CSE", semester: 7, cgpa: 8.7, backlogs: 0 },
-            { id: "STU104", name: "Priya Mishra", email: "priya.mishra@example.com", phone: "9876543213", branch: "CSE", semester: 7, cgpa: 7.8, backlogs: 0 },
-            { id: "STU105", name: "Ananya Kapoor", email: "ananya.k@example.com", phone: "9876543214", branch: "ECE", semester: 7, cgpa: 7.4, backlogs: 1 },
-            { id: "STU106", name: "Vikram Rao", email: "vikram.rao@example.com", phone: "9876543215", branch: "MECH", semester: 7, cgpa: 6.8, backlogs: 1 },
-            { id: "STU107", name: "Aman Verma", email: "aman.v@example.com", phone: "9876543216", branch: "IT", semester: 7, cgpa: 6.2, backlogs: 3 },
-            { id: "STU108", name: "Rohan Gupta", email: "rohan.g@example.com", phone: "9876543217", branch: "CSE", semester: 7, cgpa: 8.9, backlogs: 0 }
+            { id: "STU101", name: "Bhoomi Aggarwaal", email: "bhoomi3592.beai25@chitkara.edu.in", phone: "9876543210", branch: "IT", semester: 7, cgpa: 8.20, backlogs: 0 },
+            { id: "STU102", name: "Kamna Mehta", email: "kamna.mehta@example.com", phone: "9876543211", branch: "IT", semester: 7, cgpa: 9.10, backlogs: 0 },
+            { id: "STU103", name: "Rahul Sen", email: "rahul.sen@example.com", phone: "9876543212", branch: "CSE", semester: 7, cgpa: 8.70, backlogs: 0 },
+            { id: "STU104", name: "Priya Mishra", email: "priya.mishra@example.com", phone: "9876543213", branch: "CSE", semester: 7, cgpa: 7.80, backlogs: 0 },
+            { id: "STU105", name: "Ananya Kapoor", email: "ananya.k@example.com", phone: "9876543214", branch: "ECE", semester: 7, cgpa: 7.40, backlogs: 1 },
+            { id: "STU106", name: "Vikram Rao", email: "vikram.rao@example.com", phone: "9876543215", branch: "MECH", semester: 7, cgpa: 6.80, backlogs: 1 },
+            { id: "STU107", name: "Aman Verma", email: "aman.v@example.com", phone: "9876543216", branch: "IT", semester: 7, cgpa: 6.20, backlogs: 3 },
+            { id: "STU108", name: "Rohan Gupta", email: "rohan.g@example.com", phone: "9876543217", branch: "CSE", semester: 7, cgpa: 8.90, backlogs: 0 }
         ];
 
         const companies = [
-            { id: "CMP101", name: "Google", minCgpa: 8.0, maxBacklogs: 0, branches: ["CSE", "IT"] },
-            { id: "CMP102", name: "Amazon", minCgpa: 7.5, maxBacklogs: 1, branches: ["CSE", "IT", "ECE"] },
-            { id: "CMP103", name: "Microsoft", minCgpa: 7.0, maxBacklogs: 0, branches: ["CSE", "IT", "ECE", "MECH"] },
-            { id: "CMP104", name: "Goldman Sachs", minCgpa: 8.5, maxBacklogs: 0, branches: ["CSE", "IT"] },
-            { id: "CMP105", name: "TechCorp", minCgpa: 6.5, maxBacklogs: 2, branches: [] },
-            { id: "CMP106", name: "DataSys", minCgpa: 7.0, maxBacklogs: 1, branches: ["CSE", "IT"] }
+            { id: "CMP101", name: "Google", minCgpa: 8.00, maxBacklogs: 0, branches: ["CSE", "IT"] },
+            { id: "CMP102", name: "Amazon", minCgpa: 7.50, maxBacklogs: 1, branches: ["CSE", "IT", "ECE"] },
+            { id: "CMP103", name: "Microsoft", minCgpa: 7.00, maxBacklogs: 0, branches: ["CSE", "IT", "ECE", "MECH"] },
+            { id: "CMP104", name: "Goldman Sachs", minCgpa: 8.50, maxBacklogs: 0, branches: ["CSE", "IT"] },
+            { id: "CMP105", name: "TechCorp", minCgpa: 6.50, maxBacklogs: 2, branches: [] },
+            { id: "CMP106", name: "DataSys", minCgpa: 7.00, maxBacklogs: 1, branches: ["CSE", "IT"] }
         ];
 
         function switchTab(tabId) {

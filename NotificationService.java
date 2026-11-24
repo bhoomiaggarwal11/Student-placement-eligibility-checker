@@ -16,122 +16,111 @@ public class NotificationService {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
     }
 
-    /**
-     * Generates and dispatches a placement interview call letter.
-     */
+    // Prepares and logs candidate interview call letter
     public static void sendInterviewCallLetter(Student student, String companyName, String roundName,
                                               String room, String timeSlot, String date) {
-        String subject = "INTERVIEW CALL LETTER: " + companyName + " - " + roundName;
-        StringBuilder body = new StringBuilder();
-        body.append("--------------------------------------------------------------------------------\n");
-        body.append("TIMESTAMP : ").append(getTimestamp()).append("\n");
-        body.append("TO        : ").append(student.getEmail()).append(" (").append(student.getName()).append(")\n");
-        body.append("SUBJECT   : ").append(subject).append("\n");
-        body.append("--------------------------------------------------------------------------------\n");
-        body.append("Dear ").append(student.getName()).append(" (ID: ").append(student.getStudentId()).append("),\n\n");
-        body.append("Congratulations! Based on your academic standing (CGPA: ").append(student.getCgpa())
-                .append(", Branch: ").append(student.getBranch()).append("), you have been shortlisted for:\n\n");
-        body.append("  * Company      : ").append(companyName).append("\n");
-        body.append("  * Round        : ").append(roundName).append("\n");
-        body.append("  * Date         : ").append(date).append("\n");
-        body.append("  * Assigned Room: ").append(room).append("\n");
-        body.append("  * Time Slot    : ").append(timeSlot).append("\n\n");
-        body.append("INSTRUCTIONS:\n");
-        body.append("1. Please bring 2 printed copies of your resume and college ID card.\n");
-        body.append("2. Arrive at ").append(room).append(" at least 15 minutes prior to your slot.\n");
-        body.append("3. Formal dress code is mandatory.\n\n");
-        body.append("Best regards,\n");
-        body.append("Training & Placement Cell\n");
-        body.append("--------------------------------------------------------------------------------\n");
+        String subject = "Interview Call Letter: " + companyName + " (" + roundName + ")";
+        StringBuilder letter = new StringBuilder();
+        letter.append("--------------------------------------------------------------------------------\n");
+        letter.append("DISPATCH TIME: ").append(getTimestamp()).append("\n");
+        letter.append("CANDIDATE    : ").append(student.getName()).append(" <").append(student.getEmail()).append(">\n");
+        letter.append("SUBJECT      : ").append(subject).append("\n");
+        letter.append("--------------------------------------------------------------------------------\n");
+        letter.append("Dear ").append(student.getName()).append(" (Student ID: ").append(student.getStudentId()).append("),\n\n");
+        letter.append("You have been shortlisted for the campus interview round with ").append(companyName).append(".\n\n");
+        letter.append("Round Details:\n");
+        letter.append("  - Recruiter : ").append(companyName).append("\n");
+        letter.append("  - Round     : ").append(roundName).append("\n");
+        letter.append("  - Date      : ").append(date).append("\n");
+        letter.append("  - Venue     : ").append(room).append("\n");
+        letter.append("  - Slot      : ").append(timeSlot).append("\n\n");
+        letter.append("Guidelines:\n");
+        letter.append("1. Carry your student identification card and 2 printed copies of your resume.\n");
+        letter.append("2. Please arrive at the venue 15 minutes before the allocated time slot.\n");
+        letter.append("3. Formal placement attire is required.\n\n");
+        letter.append("Regards,\nPlacement Coordination Committee\n");
+        letter.append("--------------------------------------------------------------------------------\n");
 
-        System.out.println(body.toString());
-        logNotification(body.toString());
-        System.out.println(">> Email notification logged to file: " + LOG_FILE);
-        dispatchRealEmail(student.getEmail(), subject, body.toString());
+        System.out.println(letter.toString());
+        appendLog(letter.toString());
+        System.out.println("Notice: Notification recorded in " + LOG_FILE);
+        dispatchViaPython(student.getEmail(), subject, letter.toString());
     }
 
-    /**
-     * Sends eligibility status alerts (Eligible vs Not Eligible)
-     */
+    // Sends eligibility qualification status notification
     public static void sendEligibilityAlert(Student student, Company company, boolean isEligible, String reason) {
-        String subject = "Placement Drive Update: " + company.getCompanyName();
-        StringBuilder body = new StringBuilder();
-        body.append("--------------------------------------------------------------------------------\n");
-        body.append("TIMESTAMP : ").append(getTimestamp()).append("\n");
-        body.append("TO        : ").append(student.getEmail()).append(" (").append(student.getName()).append(")\n");
-        body.append("SUBJECT   : ").append(subject).append("\n");
-        body.append("--------------------------------------------------------------------------------\n");
-        body.append("Dear ").append(student.getName()).append(",\n\n");
+        String subject = "Drive Eligibility Update: " + company.getCompanyName();
+        StringBuilder note = new StringBuilder();
+        note.append("--------------------------------------------------------------------------------\n");
+        note.append("DISPATCH TIME: ").append(getTimestamp()).append("\n");
+        note.append("CANDIDATE    : ").append(student.getName()).append(" <").append(student.getEmail()).append(">\n");
+        note.append("SUBJECT      : ").append(subject).append("\n");
+        note.append("--------------------------------------------------------------------------------\n");
+        note.append("Dear ").append(student.getName()).append(",\n\n");
 
         if (isEligible) {
-            body.append("You are ELIGIBLE for the upcoming campus recruitment drive by ")
-                    .append(company.getCompanyName()).append(".\n")
-                    .append("Kindly check your scheduler portal for round timings.\n");
+            note.append("You satisfy the preliminary eligibility criteria for ").append(company.getCompanyName()).append(".\n")
+                .append("Your profile has been queued for interview slot scheduling.\n");
         } else {
-            body.append("Thank you for your interest in ").append(company.getCompanyName()).append(".\n")
-                    .append("Unfortunately, you did not meet the eligibility criteria: ").append(reason).append(".\n")
-                    .append("We encourage you to prepare for upcoming drives.\n");
+            note.append("Thank you for applying to the recruitment drive for ").append(company.getCompanyName()).append(".\n")
+                .append("Current status: Does not meet required criteria (").append(reason).append(").\n")
+                .append("You remain eligible for subsequent campus drives that match your profile.\n");
         }
 
-        body.append("\nBest regards,\nTraining & Placement Cell\n");
-        body.append("--------------------------------------------------------------------------------\n");
+        note.append("\nRegards,\nPlacement Coordination Committee\n");
+        note.append("--------------------------------------------------------------------------------\n");
 
-        System.out.println(body.toString());
-        logNotification(body.toString());
-        System.out.println(">> Status alert logged to file: " + LOG_FILE);
-        dispatchRealEmail(student.getEmail(), subject, body.toString());
+        System.out.println(note.toString());
+        appendLog(note.toString());
+        System.out.println("Notice: Status update recorded in " + LOG_FILE);
+        dispatchViaPython(student.getEmail(), subject, note.toString());
     }
 
-    /**
-     * Dispatches call letters to all eligible candidates who have scheduled slots
-     */
+    // Sends call letters to all candidates with active booked slots
     public static int broadcastSchedules(ArrayList<InterviewScheduler.InterviewSlot> slots, StudentManager studentManager) {
-        int count = 0;
+        int dispatched = 0;
         for (InterviewScheduler.InterviewSlot slot : slots) {
             Student s = studentManager.findStudentById(slot.getStudentId());
             if (s != null) {
                 sendInterviewCallLetter(s, slot.getCompanyName(), slot.getRoundName(),
                         slot.getRoom(), slot.getTimeSlot(), slot.getDate());
-                count++;
+                dispatched++;
             }
         }
-        return count;
+        return dispatched;
     }
 
-    private static synchronized void logNotification(String message) {
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(LOG_FILE, true));
-            writer.write(message);
+    private static synchronized void appendLog(String text) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(LOG_FILE, true))) {
+            writer.write(text);
             writer.newLine();
-            writer.close();
         } catch (IOException e) {
-            System.out.println("Error saving email log: " + e.getMessage());
+            System.out.println("Warning: Could not write notification log: " + e.getMessage());
         }
     }
 
-    /**
-     * Bridges to the Python SMTP Real Email Sender
-     */
-    private static void dispatchRealEmail(String toEmail, String subject, String bodyText) {
+    // Calls send_real_email.py using ProcessBuilder to transmit email via SMTP
+    private static void dispatchViaPython(String toEmail, String subject, String bodyText) {
         try {
-            File tempBody = File.createTempFile("mail_body_", ".txt");
-            BufferedWriter tempWriter = new BufferedWriter(new FileWriter(tempBody));
-            tempWriter.write(bodyText);
-            tempWriter.close();
+            File tempBody = File.createTempFile("email_payload_", ".txt");
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempBody))) {
+                writer.write(bodyText);
+            }
 
             ProcessBuilder pb = new ProcessBuilder("python", "send_real_email.py", toEmail, subject, tempBody.getAbsolutePath());
             pb.redirectErrorStream(true);
             Process process = pb.start();
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println("  " + line);
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    System.out.println("  " + line);
+                }
             }
             process.waitFor();
             tempBody.delete();
         } catch (Exception e) {
-            System.out.println("  [MAIL-INFO] SMTP dispatcher notice: " + e.getMessage());
+            System.out.println("  Notice: Python dispatcher exception: " + e.getMessage());
         }
     }
 }
